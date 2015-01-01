@@ -6,7 +6,7 @@ of the form
 
 	/path/to/repo@tree-ish/repository/path
 
-Where /path/to/repo is a valid Git repository, and tree-ish is a valid
+Where /path/to/repo is a valid Git repository, and tree-ish[2] is a valid
 tree, commit or tag object name.
 
 Gitfiles is best used with the following plumbing rules. The first rule
@@ -27,5 +27,14 @@ so that their diff shows Gitfiles paths.
 	data matches '([0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f])[0-9a-f]*'
 	plumb start rc -c 'cd '''$wdir'''; root=`{git rev-parse --show-toplevel}; rev='''$1'''; {gitfileshow $rev} >[2=1] | nobs | plumb -i -d edit -a ''action=showdata filename=''$root/+$rev'
 
+Installation
+
+Gitfiles is a plan9ports[3] program. Install with mk:
+
+	% mk install
+
+which will build and then install the binaries into $PLAN9/bin.
+
 [1] http://swtch.com/plan9port/man/man1/netfiles.html
 [2] http://stackoverflow.com/questions/4044368/what-does-tree-ish-mean-in-git
+[3] http://swtch.com/plan9port/
