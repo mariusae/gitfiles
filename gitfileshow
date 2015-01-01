@@ -1,0 +1,43 @@
+#!/usr/local/plan9/bin/rc
+
+root = `{git rev-parse --show-toplevel}
+
+if(~ $#* 0)
+	* = (HEAD)
+	
+t1 = /tmp/diff1.$pid
+t2 = /tmp/diff2.$pid
+
+t1e = '\\/tmp\\/diff1.'$pid
+t2e = '\\/tmp\\/diff2.'$pid
+
+roote = `{echo $root | 9 sed -e 's;/;\\\\/;g'}
+
+# :100644 100644 7802edc66d552f9178ae98fd84b9810f7e6ac7f7 e192231fff4db1df62dea187db4613b7fc8f14d8 M	tests/java/com/twitter/adserver/integration/BUILD
+# :000000 100644 0000000000000000000000000000000000000000 e7d8c70e9fc1b1e849cab4131c2d7592ee3e8602 A	tests/resources/com/twitter/adserver/integration/BUILD
+
+git log --stat -1 $1
+echo
+
+git diff-tree -r $1  | awk 'NR==1 {next} {
+	d1 = "/dev/null"
+	d2 = "/dev/null"
+
+	if($3 != "0000000000000000000000000000000000000000"){
+		print "gitfileget '$root' '$1'~1 " $6 " >'$t1'"
+		d1 = "'$t1'"
+	}
+
+	if($4 != "0000000000000000000000000000000000000000"){
+		print "gitfileget '$root' '$1' " $6 " >'$t2'"
+		d2 = "'$t2'"
+	}
+	
+	path = $6
+	gsub("/", "\\/", path)
+
+	print "9 diff -c "d1" "d2 " |  ssam '',x/^\\/.*\\n/ x/[a-zA-Z0-9._\\/]+/ { "
+	print "	g/'$t1e'/ c/'$roote'@'$1'~1\\/"path"/"
+	print "	g/'$t2e'/ c/'$roote'@'$1'\\/"path"/"
+	print"}''"
+}' | rc

@@ -1,0 +1,22 @@
+#!/usr/local/plan9/bin/rc
+
+if(! ~ $#* 3){
+	echo usage: gitfilestat root treeish path >[1=2]
+	exit usage
+}
+
+cd $1
+
+t = `{git ls-tree -d $2 $3}
+switch($t(2)){
+case tree
+	echo directory
+case blob
+	echo file
+case *
+	t = `{git ls-tree $2 $3}
+	if(~ $#t 0)
+		echo nonexistent
+	if not
+		echo file
+}

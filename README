@@ -1,0 +1,31 @@
+Gitfiles provides support for browsing Git repositories inside Acme.
+
+It works like, and is based on, Netfiles[1]. Gitfiles presents read-only
+access to a fake filesystem of files stored in Git. Gitfiles accepts paths
+of the form
+
+	/path/to/repo@tree-ish/repository/path
+
+Where /path/to/repo is a valid Git repository, and tree-ish is a valid
+tree, commit or tag object name.
+
+Gitfiles is best used with the following plumbing rules. The first rule
+plumbs paths to Gitfiles; the second rule plumbs Git commits, formatted
+so that their diff shows Gitfiles paths.
+
+	kind is text
+	data matches '[a-zA-Z0-9_\-./~{}@]+('$addr')?'
+	data matches '((/[a-zA-Z0-9_\-./]+)@[a-zA-Z0-9_\-./~{}@]+)('$addr')?'
+	data set       $1
+	arg isdir      $2
+	attr add       addr=$4
+	plumb to gitfileedit
+	plumb client Gitfiles
+	
+	type is text
+	data matches '[a-zA-Z¡-￿0-9_\-./]+'
+	data matches '([0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f])[0-9a-f]*'
+	plumb start rc -c 'cd '''$wdir'''; root=`{git rev-parse --show-toplevel}; rev='''$1'''; {gitfileshow $rev} >[2=1] | nobs | plumb -i -d edit -a ''action=showdata filename=''$root/+$rev'
+
+[1] http://swtch.com/plan9port/man/man1/netfiles.html
+[2] http://stackoverflow.com/questions/4044368/what-does-tree-ish-mean-in-git

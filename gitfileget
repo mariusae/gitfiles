@@ -1,0 +1,32 @@
+#!/usr/local/plan9/bin/rc
+
+f=getfile
+if(~ $1 -d){
+	f=getdir
+	shift
+}
+
+if(! ~ $#* 3){
+	echo 'usage: gitfileget [-d] root treeish path' >[1=2]
+	exit usage
+}
+
+cd $1
+
+fn getfile {
+	git show $1:$2
+}
+
+fn getdir {
+	git ls-tree $1 $2/ | awk '
+		{
+			sub("'$2'/", "", $4)
+			if($2 == "tree")
+				print $4 "/"
+			else
+				print $4
+		}'
+}
+
+$f $2 $3
+
