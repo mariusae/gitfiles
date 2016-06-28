@@ -1,4 +1,4 @@
-#!/usr/local/plan9/bin/rc
+#!/usr/bin/env rc
 
 if(! ~ $#* 3){
 	echo usage: gitfilestat root treeish path >[1=2]
